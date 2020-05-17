@@ -1,9 +1,8 @@
 from BaseClass import BaseClass
-from datetime import datetime
+from RandomDateTime import create_random_date
 
 
 class ExtendedClass(BaseClass):
     def __init__(self, post):
-        date = datetime.now()
-        self.created_at = date.strftime("%m/%d/%Y %H:%M:%S")
+        self.created_at = create_random_date()
         super().__init__(post)

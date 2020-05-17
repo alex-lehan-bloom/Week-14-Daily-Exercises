@@ -1,11 +1,9 @@
 from ExtendedClass import ExtendedClass
 import json
 
-class JsonablePost:
+class JsonablePost(ExtendedClass):
     def __init__(self, post):
-        self.post = post
+        super().__init__(post)
 
     def create_json(self):
-        my_extended_class = ExtendedClass(self.post)
-        json_data = json.dumps(my_extended_class.__dict__)
-        return json_data
+        return json.dumps(self.__dict__)

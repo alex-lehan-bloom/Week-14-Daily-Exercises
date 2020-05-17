@@ -42,7 +42,7 @@ def add_date_to_posts():
         post_with_date = new_jsonable_instance.create_json()
         post_with_date = ast.literal_eval(post_with_date)
         GlobalVariables.posts_with_dates[post.get('id')] = post_with_date
-
+    print(GlobalVariables.posts_with_dates)
 
 if __name__ == '__main__':
     app.run(debug=True)
