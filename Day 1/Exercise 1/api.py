@@ -14,11 +14,17 @@ def get_posts():
 
 @app.route("/posts/<post_id>")
 def get_post_by_id(post_id):
-    post = requests.get("https://jsonplaceholder.typicode.com/posts/" + post_id)
+    post = requests.get("https://jsonplaceholder.typicode.com/posts/{}".format(post_id))
     post_in_json = post.json()
     response = app.response_class(response=json.dumps(post_in_json), status=200, mimetype='application/json')
     return response
 
+@app.route("/posts/<post_id>/comments")
+def get_comments_of_specific_post(post_id):
+    comments = requests.get("https://jsonplaceholder.typicode.com/posts/{}/comments".format(post_id))
+    comments_in_json = comments.json()
+    response = app.response_class(response=json.dumps(comments_in_json), status=200, mimetype='application/json')
+    return response
 
 if __name__ == '__main__':
     app.run(debug=True)
