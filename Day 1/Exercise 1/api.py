@@ -11,25 +11,21 @@ app = Flask(__name__)
 
 @app.route("/posts")
 def get_posts():
-    posts = requests.get("https://jsonplaceholder.typicode.com/posts")
-    posts_in_json = posts.json()
-    response = app.response_class(response=json.dumps(posts_in_json), status=200, mimetype='application/json')
+    response = app.response_class(response=json.dumps(GlobalVariables.posts_with_dates), status=200, mimetype='application/json')
     return response
 
 
 @app.route("/posts/<post_id>")
 def get_post_by_id(post_id):
-    post = requests.get("https://jsonplaceholder.typicode.com/posts/{}".format(post_id))
-    post_in_json = post.json()
-    response = app.response_class(response=json.dumps(post_in_json), status=200, mimetype='application/json')
+    post_id = int(post_id)
+    response = app.response_class(response=json.dumps(GlobalVariables.posts_with_dates[post_id]), status=200, mimetype='application/json')
     return response
 
 
 @app.route("/posts/<post_id>/comments")
 def get_comments_of_specific_post(post_id):
-    comments = requests.get("https://jsonplaceholder.typicode.com/posts/{}/comments".format(post_id))
-    comments_in_json = comments.json()
-    response = app.response_class(response=json.dumps(comments_in_json), status=200, mimetype='application/json')
+    post_id = int(post_id)
+    response = app.response_class(response=json.dumps(GlobalVariables.posts_with_dates[post_id]['comments']), status=200, mimetype='application/json')
     return response
 
 
