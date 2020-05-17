@@ -35,6 +35,12 @@ def get_comments_of_specific_post(post_id):
 
 @app.before_first_request
 def add_date_to_posts():
+    generate_posts_with_created_date()
+    generate_comments_for_each_post()
+    print(GlobalVariables.posts_with_dates)
+
+
+def generate_posts_with_created_date():
     posts = requests.get("https://jsonplaceholder.typicode.com/posts")
     posts_in_json = posts.json()
     for post in posts_in_json:
@@ -42,7 +48,22 @@ def add_date_to_posts():
         post_with_date = new_jsonable_instance.create_json()
         post_with_date = ast.literal_eval(post_with_date)
         GlobalVariables.posts_with_dates[post.get('id')] = post_with_date
-    print(GlobalVariables.posts_with_dates)
+
+
+def generate_comments_for_each_post():
+    comments = requests.get("https://jsonplaceholder.typicode.com/comments")
+    comments_in_json = comments.json()
+    id = 1
+    comments_for_a_specific_post = []
+    for comment in comments_in_json:
+        if int(comment.get('postId')) == id:
+            comments_for_a_specific_post.append(comment)
+        else:
+            GlobalVariables.posts_with_dates[id]['comments'] = comments_for_a_specific_post
+            comments_for_a_specific_post = [comment]
+            id += 1
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
