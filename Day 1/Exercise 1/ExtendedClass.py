@@ -1,4 +1,5 @@
-import BaseClass from BaseClass
+from BaseClass import BaseClass
+
 
 class ExtendedClass(BaseClass):
     def __init__(self, created_at, user_id, id, title, body):
