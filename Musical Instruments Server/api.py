@@ -1,5 +1,6 @@
 from flask import Flask, json, request
 from id_generator import create_id
+from instrument import Instrument
 import storage
 
 app = Flask(__name__)
@@ -26,10 +27,11 @@ def get_instrument_by_user(user_name):
 @app.route("/instruments", methods=["POST"])
 def add_instrument():
     content = request.form
-    content = content.to_dict()
+    new_instrument = Instrument(content)
     instrument_id = create_id()
-    storage.instruments[instrument_id] = content
+    storage.instruments[instrument_id] = new_instrument
     response = {"instrumentId": instrument_id}
+    print(storage.instruments)
     return app.response_class(response=json.dumps(response), status=200, mimetype='application/json')
 
 @app.route("/instruments/reassign", methods=['POST'])
@@ -49,7 +51,6 @@ def add_video_to_instrument(instrument_id):
     content = request.form
     content = content.to_dict()
     storage.instruments[instrument_id]["video"] = content["video"]
-    storage.instruments["izbKuDgm"]
     response_body = {instrument_id: storage.instruments[instrument_id]}
     response = app.response_class(response=json.dumps(response_body), status=200, mimetype="application/json")
     return response
