@@ -4,7 +4,13 @@ import storage
 
 app = Flask(__name__)
 
-@app.route("/instrument", methods=["POST"])
+@app.route("/instruments")
+def get_instruments():
+    response = app.response_class(response=json.dumps(storage.instruments), status=200, mimetype="application/json")
+    return response
+
+
+@app.route("/instruments", methods=["POST"])
 def add_instrument():
     content = request.form
     content = content.to_dict()
