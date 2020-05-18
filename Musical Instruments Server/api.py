@@ -33,5 +33,17 @@ def add_instrument():
     response = {"instrumentId": instrument_id}
     return app.response_class(response=json.dumps(response), status=200, mimetype='application/json')
 
+@app.route("/instruments/reassign", methods=['POST'])
+def reassign_instrument():
+    content = request.form
+    content = content.to_dict()
+    instrument_to_return = {}
+    for instrument in storage.instruments:
+        if content["instrumentId"] == instrument:
+            storage.instruments[instrument]["user"] = content["user"]
+            instrument_to_return[instrument] = storage.instruments[instrument]
+    response = app.response_class(response=json.dumps(instrument_to_return), status=200, mimetype="application/json")
+    return response
+
 if __name__ == '__main__':
     app.run(debug=True)
