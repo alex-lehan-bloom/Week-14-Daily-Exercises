@@ -8,4 +8,6 @@ class Instrument:
     def create_json(self):
         return json.dumps(self.__dict__)
 
+test = Instrument()
+
 
