@@ -29,7 +29,6 @@ def add_instrument():
     content = content.to_dict()
     instrument_id = create_id()
     storage.instruments[instrument_id] = content
-    print(storage.instruments)
     response = {"instrumentId": instrument_id}
     return app.response_class(response=json.dumps(response), status=200, mimetype='application/json')
 
@@ -37,13 +36,24 @@ def add_instrument():
 def reassign_instrument():
     content = request.form
     content = content.to_dict()
-    instrument_to_return = {}
+    response_body = {}
     for instrument in storage.instruments:
         if content["instrumentId"] == instrument:
             storage.instruments[instrument]["user"] = content["user"]
-            instrument_to_return[instrument] = storage.instruments[instrument]
-    response = app.response_class(response=json.dumps(instrument_to_return), status=200, mimetype="application/json")
+            response_body[instrument] = storage.instruments[instrument]
+    response = app.response_class(response=json.dumps(response_body), status=200, mimetype="application/json")
     return response
+
+@app.route("/instruments/add_video/<instrument_id>", methods=['POST'])
+def add_video_to_instrument(instrument_id):
+    content = request.form
+    content = content.to_dict()
+    storage.instruments[instrument_id]["video"] = content["video"]
+    storage.instruments["izbKuDgm"]
+    response_body = {instrument_id: storage.instruments[instrument_id]}
+    response = app.response_class(response=json.dumps(response_body), status=200, mimetype="application/json")
+    return response
+
 
 if __name__ == '__main__':
     app.run(debug=True)
