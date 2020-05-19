@@ -1,4 +1,3 @@
-import json
 
 
 class Instrument(dict):

@@ -1,26 +1,26 @@
 from flask import Flask, json, request
 from id_generator import create_id
 from instrument import Instrument
-import storage
+from storage import instruments_db
 
 app = Flask(__name__)
 
 @app.route("/instruments")
 def get_instruments():
-    response = app.response_class(response=json.dumps(storage.instruments), status=200, mimetype="application/json")
+    response = app.response_class(response=json.dumps(instruments_db), status=200, mimetype="application/json")
     return response
 
 @app.route("/instruments/<instrument_id>")
 def get_instrument_by_id(instrument_id):
-    response = app.response_class(response=json.dumps(storage.instruments[instrument_id]), status=200, mimetype="application/json")
+    response = app.response_class(response=json.dumps(instruments_db[instrument_id]), status=200, mimetype="application/json")
     return response
 
 @app.route("/instruments/user/<user_name>")
 def get_instrument_by_user(user_name):
     users = {}
-    for instrument in storage.instruments:
-        if user_name.lower() == storage.instruments.get(instrument).get('user').lower():
-            users[instrument] = storage.instruments.get(instrument)
+    for instrument in instruments_db:
+        if user_name.lower() == instruments_db.get(instrument).get('user').lower():
+            users[instrument] = instruments_db.get(instrument)
     response = app.response_class(response=json.dumps(users), status=200, mimetype="application/json")
     return response
 
@@ -29,9 +29,8 @@ def add_instrument():
     content = request.form
     new_instrument = Instrument(content)
     instrument_id = create_id()
-    storage.instruments[instrument_id] = new_instrument
+    instruments_db[instrument_id] = new_instrument
     response = {"instrumentId": instrument_id}
-    print(storage.instruments)
     return app.response_class(response=json.dumps(response), status=200, mimetype='application/json')
 
 @app.route("/instruments/reassign", methods=['POST'])
@@ -39,10 +38,10 @@ def reassign_instrument():
     content = request.form
     content = content.to_dict()
     response_body = {}
-    for instrument in storage.instruments:
+    for instrument in instruments_db:
         if content["instrumentId"] == instrument:
-            storage.instruments[instrument]["user"] = content["user"]
-            response_body[instrument] = storage.instruments[instrument]
+            instruments_db[instrument]["user"] = content["user"]
+            response_body[instrument] = instruments_db[instrument]
     response = app.response_class(response=json.dumps(response_body), status=200, mimetype="application/json")
     return response
 
@@ -50,8 +49,8 @@ def reassign_instrument():
 def add_video_to_instrument(instrument_id):
     content = request.form
     content = content.to_dict()
-    storage.instruments[instrument_id]["video"] = content["video"]
-    response_body = {instrument_id: storage.instruments[instrument_id]}
+    instruments_db[instrument_id]["video"] = content["video"]
+    response_body = {instrument_id: instruments_db[instrument_id]}
     response = app.response_class(response=json.dumps(response_body), status=200, mimetype="application/json")
     return response
 
