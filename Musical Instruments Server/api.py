@@ -1,9 +1,10 @@
-from flask import Flask, json, request, send_file
+from flask import Flask, json, request, send_file, render_template
 from id_generator import create_id
 from instrument import Instrument
-from storage import instruments_db
+from storage import instruments_db, users_db
 from validators import validator
 from werkzeug.utils import secure_filename
+from registration_form import RegistrationForm
 import time
 import re
 import io
@@ -11,6 +12,15 @@ import os.path
 
 
 app = Flask(__name__)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm(request.form)
+    if request.method == 'POST' and form.validate():
+        user_id = create_id()
+        users_db[create_id()] = form.username.data
+        return render_template("home.html")
+    return render_template('registration.html', form=form)
 
 @app.route("/instruments")
 def get_instruments():
