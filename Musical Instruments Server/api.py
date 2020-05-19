@@ -1,4 +1,4 @@
-from flask import Flask, json, request
+from flask import Flask, json, request, send_file
 from id_generator import create_id
 from instrument import Instrument
 from storage import instruments_db
@@ -6,6 +6,8 @@ from validators import validator
 from werkzeug.utils import secure_filename
 import time
 import re
+import io
+import os.path
 
 
 app = Flask(__name__)
@@ -36,10 +38,19 @@ def search_for_instrument(search_query):
     response = app.response_class(response=json.dumps(search_results), status=200, mimetype="application/json")
     return response
 
-@app.route('/instruments/image/<instrument_id>')
-def get_instrument_images():
-    return "test"
-
+@app.route('/instruments/download_image/<image_name>')
+def download_instrument_images(image_name):
+    print(os.path.join('images', "test"))
+    try:
+        with open(os.path.join('images', image_name), "rb") as bites:
+            return send_file(
+                io.BytesIO(bites.read()),
+                attachment_filename=image_name,
+                mimetype='image/jpg'
+            )
+    except EnvironmentError:
+        response_body = {"error": "File not found."}
+        return app.response_class(response=json.dumps(response_body), status=404, mimetype="application/json")
 
 
 
