@@ -77,17 +77,17 @@ def add_video_to_instrument(instrument_id):
 
 @app.route("/instruments/add_image/<instrument_id>", methods=['POST'])
 def add_image(instrument_id):
-    f = request.files['image']
-    filename = secure_filename(f.filename)
-    f.save('images/' + filename)
-    response_body = None
-    if not validator.validate_instrument_exists(instrument_id):
+    if not validator.instrument_exists(instrument_id):
         response_body = {"status": "Instrument with ID '{}' does not exist.".format(instrument_id)}
     else:
-        # Check if instrument exists
-        # Check if instrument has an image already
-        instruments_db[instrument_id]['images'] = [filename]
-        response_body = {"status": "uploaded successfully", "file": filename}
+        if len(instruments_db[instrument_id]['images']) < 2:
+            f = request.files['image']
+            filename = secure_filename(f.filename)
+            f.save('images/' + filename)
+            instruments_db[instrument_id]['images'].append(filename)
+            response_body = {"status": "uploaded successfully", "file": filename}
+        else:
+            response_body ={"status": "Upload failed. Instrument already has two images."}
     response = app.response_class(response=json.dumps(response_body), status=200, mimetype="application/json")
     return response
 
