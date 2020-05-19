@@ -36,6 +36,13 @@ def search_for_instrument(search_query):
     response = app.response_class(response=json.dumps(search_results), status=200, mimetype="application/json")
     return response
 
+@app.route('/instruments/image/<instrument_id>')
+def get_instrument_images():
+    return "test"
+
+
+
+
 @app.route("/instruments/user/<user_name>")
 def get_instrument_by_user(user_name):
     users = {}
@@ -80,14 +87,16 @@ def add_image(instrument_id):
     if not validator.instrument_exists(instrument_id):
         response_body = {"status": "Instrument with ID '{}' does not exist.".format(instrument_id)}
     else:
-        if len(instruments_db[instrument_id]['images']) < 2:
-            f = request.files['image']
-            filename = secure_filename(f.filename)
-            f.save('images/' + filename)
-            instruments_db[instrument_id]['images'].append(filename)
-            response_body = {"status": "uploaded successfully", "file": filename}
+        images = request.files.getlist('image[]')
+        if len(images) > 2:
+            response_body = {"status": "Upload failed. You can only upload two images at a time."}
         else:
-            response_body ={"status": "Upload failed. Instrument already has two images."}
+            response_body = {"status": "Upload successful.", "images":[]}
+            for image in images:
+                filename = secure_filename(image.filename)
+                image.save('images/' + filename)
+                instruments_db[instrument_id]['images'].append(filename)
+                response_body['images'].append(filename)
     response = app.response_class(response=json.dumps(response_body), status=200, mimetype="application/json")
     return response
 
