@@ -52,8 +52,6 @@ def download_instrument_images(image_name):
         response_body = {"error": "File not found."}
         return app.response_class(response=json.dumps(response_body), status=404, mimetype="application/json")
 
-
-
 @app.route("/instruments/user/<user_name>")
 def get_instrument_by_user(user_name):
     users = {}
@@ -111,6 +109,17 @@ def add_image(instrument_id):
     response = app.response_class(response=json.dumps(response_body), status=200, mimetype="application/json")
     return response
 
+@app.route("/instruments/user/<username>", methods=['DELETE'])
+def delete_instruments_for_user(username):
+    response_body = {}
+    for instrument_id in list(instruments_db.keys()):
+        if instruments_db[instrument_id]['user'].lower() == username.lower():
+            response_body[instrument_id] = instruments_db[instrument_id]
+            del instruments_db[instrument_id]
+    if response_body == {}:
+        response_body = {"Status": "No instruments were assigned to {}.".format(username)}
+    response = app.response_class(response=json.dumps(response_body), status=200, mimetype="application/json" )
+    return response
 
 
 if __name__ == '__main__':
