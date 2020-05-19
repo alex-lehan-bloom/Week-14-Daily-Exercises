@@ -2,6 +2,11 @@ from flask import Flask, json, request
 from id_generator import create_id
 from instrument import Instrument
 from storage import instruments_db
+from validators import validator
+from werkzeug.utils import secure_filename
+import time
+import re
+
 
 app = Flask(__name__)
 
@@ -13,6 +18,22 @@ def get_instruments():
 @app.route("/instruments/<instrument_id>")
 def get_instrument_by_id(instrument_id):
     response = app.response_class(response=json.dumps(instruments_db[instrument_id]), status=200, mimetype="application/json")
+    return response
+
+@app.route("/instruments/find/<search_query>")
+def search_for_instrument(search_query):
+    search_results = {}
+    start_time = time.perf_counter()
+    for instrument_id in instruments_db:
+        instrument = instruments_db[instrument_id]['instrument']
+        match = re.search(search_query.lower(),instrument.lower())
+        if match:
+            search_results[instrument_id] = instruments_db[instrument_id]
+    end_time = time.perf_counter()
+    if search_results == {}:
+        search_results["results"] = "No instruments match your search term."
+    search_results["searchTimeInMS"] = end_time - start_time
+    response = app.response_class(response=json.dumps(search_results), status=200, mimetype="application/json")
     return response
 
 @app.route("/instruments/user/<user_name>")
@@ -33,7 +54,7 @@ def add_instrument():
     response = {"instrumentId": instrument_id}
     return app.response_class(response=json.dumps(response), status=200, mimetype='application/json')
 
-@app.route("/instruments/reassign", methods=['POST'])
+@app.route("/instruments/assign", methods=['POST'])
 def reassign_instrument():
     content = request.form
     content = content.to_dict()
@@ -53,6 +74,23 @@ def add_video_to_instrument(instrument_id):
     response_body = {instrument_id: instruments_db[instrument_id]}
     response = app.response_class(response=json.dumps(response_body), status=200, mimetype="application/json")
     return response
+
+@app.route("/instruments/add_image/<instrument_id>", methods=['POST'])
+def add_image(instrument_id):
+    f = request.files['image']
+    filename = secure_filename(f.filename)
+    f.save('images/' + filename)
+    response_body = None
+    if not validator.validate_instrument_exists(instrument_id):
+        response_body = {"status": "Instrument with ID '{}' does not exist.".format(instrument_id)}
+    else:
+        # Check if instrument exists
+        # Check if instrument has an image already
+        instruments_db[instrument_id]['images'] = [filename]
+        response_body = {"status": "uploaded successfully", "file": filename}
+    response = app.response_class(response=json.dumps(response_body), status=200, mimetype="application/json")
+    return response
+
 
 
 if __name__ == '__main__':
